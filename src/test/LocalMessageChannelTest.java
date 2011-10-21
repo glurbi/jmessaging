@@ -1,4 +1,5 @@
 package test;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import local.LocalMessageChannel;
@@ -18,12 +19,13 @@ public class LocalMessageChannelTest {
 				System.out.println("Received " + message + " in MessageListener " + instanceNo);
 			}
 		}
+		public void onMessages(List<Long> messages) {
+			System.out.println("Received once " + messages.size() + " in MessageListener " + instanceNo);
+		}
 	}
 	
 	private static class MessageProducerTest implements Runnable {
-		private static long instanceCount = 0;
 		private final MessageChannel<Long> messageChannel;
-		private final long instanceNo = ++instanceCount;
 		private final CountDownLatch latch = new CountDownLatch(1);
 		public MessageProducerTest(MessageChannel<Long> messageChannel) {
 			this.messageChannel = messageChannel;
@@ -32,7 +34,7 @@ public class LocalMessageChannelTest {
 			for (long i = 1; i <= MESSAGE_COUNT; i++) {
 				messageChannel.publish(i);
 				if (i % 100000 == 0) {
-					System.out.println("Sent " + i + " in MessageProducerTest " + instanceNo);
+					System.out.println("Sent " + i + " from MessageProducerTest.");
 				}
 			}
 			latch.countDown();
