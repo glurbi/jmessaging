@@ -40,6 +40,24 @@ public class LocalMessageChannel<T> implements MessageChannel<T> {
 		});
 	}
 
+	public void publish(final List<Object> ids, final List<T> messages) {
+		assert ids.size() == messages.size();
+		executor.submit(new Runnable() {
+			public void run() {
+				synchronized (mutex) {
+					for (int i = 0; i < ids.size(); i++) {
+						Object id = ids.get(i);
+						T message = messages.get(i);
+						persistentMessages.put(id, message);
+						for (MessageListener<T> listener : listeners) {
+							listener.onMessage(message);
+						}
+					}
+				}
+			}
+		});
+	}
+	
 	public void subscribe(final MessageListener<T> listener) {
 		synchronized (mutex) {
 			if (listeners.contains(listener)) {
@@ -52,5 +70,5 @@ public class LocalMessageChannel<T> implements MessageChannel<T> {
 			listeners.add(listener);
 		}
 	}
-	
+
 }
