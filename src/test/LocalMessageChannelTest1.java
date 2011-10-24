@@ -3,14 +3,14 @@ package test;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import local.LocalMessageChannel;
+import local.AsynchronousMessageChannel;
 import local.MessageListener;
 
 public class LocalMessageChannelTest1 {
 
 	private static long MESSAGE_COUNT = 1000000;
 	private static CountDownLatch receivedLatch = new CountDownLatch(1);
-	private static LocalMessageChannel<Long> messageChannel = new LocalMessageChannel<Long>();
+	private static AsynchronousMessageChannel<Long> messageChannel = new AsynchronousMessageChannel<Long>();
 	
 	private static class MessageListenerTest1 implements MessageListener<Long> {
 		private long messageCount = 0;

@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class LocalMessageChannel<T> implements MessageChannel<T> {
+public class AsynchronousMessageChannel<T> implements MessageChannel<T> {
 
 	private final Object mutex = new Object();
 	private final Set<MessageListener<T>> listeners = new HashSet<MessageListener<T>>();

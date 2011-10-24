@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import local.LocalMessageChannel;
+import local.AsynchronousMessageChannel;
 import local.MessageChannel;
 import local.MessageListener;
 
@@ -13,7 +13,7 @@ public class LocalMessageChannelTest3 {
 	private static long MESSAGE_COUNT = 1000000;
 	private static int LISTENER_COUNT = 4;
 	private static CountDownLatch receivedLatch = new CountDownLatch(LISTENER_COUNT);
-	private static LocalMessageChannel<Long> messageChannel = new LocalMessageChannel<Long>();
+	private static AsynchronousMessageChannel<Long> messageChannel = new AsynchronousMessageChannel<Long>();
 	
 	private static class MessageListenerTest2 implements MessageListener<Long> {
 		private long messageCount = 0;
