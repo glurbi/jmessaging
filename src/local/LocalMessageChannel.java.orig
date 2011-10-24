@@ -40,8 +40,8 @@ public class LocalMessageChannel<T> implements MessageChannel<T> {
 			}
 		});
 	}
-
-	public void subscribe(final MessageListener<T> listener) {
+	
+	public void subscribe(MessageListener<T> listener) {
 		synchronized (mutex) {
 			if (listeners.contains(listener)) {
 				throw new IllegalArgumentException("You cannot subscribe twice with the same listener.");
@@ -62,4 +62,5 @@ public class LocalMessageChannel<T> implements MessageChannel<T> {
 		executor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
 	}
 
+	
 }
