@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class LocalMessageChannel<T> implements MessageChannel<T> {
 
@@ -54,12 +53,4 @@ public class LocalMessageChannel<T> implements MessageChannel<T> {
 		}
 	}
 	
-	public void stop() {
-		executor.shutdown();
-	}
-	
-	public void awaitTermination() throws InterruptedException {
-		executor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
-	}
-
 }

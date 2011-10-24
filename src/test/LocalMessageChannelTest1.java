@@ -1,68 +1,49 @@
 package test;
+
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import local.LocalMessageChannel;
-import local.MessageChannel;
 import local.MessageListener;
-
 
 public class LocalMessageChannelTest1 {
 
 	private static long MESSAGE_COUNT = 1000000;
+	private static CountDownLatch receivedLatch = new CountDownLatch(1);
+	private static LocalMessageChannel<Long> messageChannel = new LocalMessageChannel<Long>();
 	
-	private static class MessageListenerTest implements MessageListener<Long> {
-		private static long instanceCount = 0;
-		private final long instanceNo = ++instanceCount;
+	private static class MessageListenerTest1 implements MessageListener<Long> {
+		private long messageCount = 0;
 		public void onMessage(Long message) {
-			if (message % 100000 == 0) {
-				System.out.println("Received " + message + " in MessageListener " + instanceNo);
-			}
+			messageCount++;
+			checkFinished();
 		}
 		public void onMessages(List<Long> messages) {
-			System.out.println("Received once " + messages.size() + " in MessageListener " + instanceNo);
+			messageCount += messages.size();
+			checkFinished();
 		}
-	}
-	
-	private static class MessageProducerTest implements Runnable {
-		private final MessageChannel<Long> messageChannel;
-		private final CountDownLatch latch = new CountDownLatch(1);
-		public MessageProducerTest(MessageChannel<Long> messageChannel) {
-			this.messageChannel = messageChannel;
-		}
-		public void run() {
-			for (long i = 1; i <= MESSAGE_COUNT; i++) {
-				messageChannel.publish(i);
-				if (i % 100000 == 0) {
-					System.out.println("Sent " + i + " from MessageProducerTest.");
-				}
+		private void checkFinished() {
+			if (messageCount == MESSAGE_COUNT) {
+				receivedLatch.countDown();
 			}
-			latch.countDown();
 		}
-		public void start() {
-			new Thread(this).start();
-		}
-		public void awaitTermination() throws InterruptedException {
-			latch.await();
+		public String getName() {
+			return "MessageListenerTest1";
 		}
 	}
 	
 	public static void main(String[] args) throws Exception {
-		LocalMessageChannel<Long> messageChannel = new LocalMessageChannel<Long>();
-		MessageProducerTest messageProducer = new MessageProducerTest(messageChannel);
-		messageChannel.subscribe(new MessageListenerTest());
-		messageChannel.subscribe(new MessageListenerTest());
-		messageChannel.subscribe(new MessageListenerTest());
-		messageChannel.subscribe(new MessageListenerTest());
+		messageChannel.subscribe(new MessageListenerTest1());
 		long t0 = System.currentTimeMillis();
-		messageProducer.start();
-		messageProducer.awaitTermination();
+		for (long i = 1; i <= MESSAGE_COUNT; i++) {
+			messageChannel.publish(i);
+		}
 		long t1 = System.currentTimeMillis();
 		System.out.println("Published " + MESSAGE_COUNT + " messages in " + (t1-t0) + "ms");
-		messageChannel.stop();
-		messageChannel.awaitTermination();
+		receivedLatch.await();
 		long t2 = System.currentTimeMillis();
 		System.out.println("Distributed " + MESSAGE_COUNT + " messages in " + (t2-t0) + "ms");
+		System.exit(0);
 	}
 	
 }

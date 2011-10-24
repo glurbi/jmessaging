@@ -9,13 +9,12 @@ import local.MessageListener;
 
 public class LocalMessageChannelTest2 {
 
-	private static long MESSAGE_COUNT = 2000000;
+	private static long MESSAGE_COUNT = 1000000;
 	private static int LISTENER_COUNT = 4;
-	private static CountDownLatch latch = new CountDownLatch(LISTENER_COUNT);
+	private static CountDownLatch receivedLatch = new CountDownLatch(LISTENER_COUNT);
+	private static LocalMessageChannel<Long> messageChannel = new LocalMessageChannel<Long>();
 	
-	private static class MessageListenerTest implements MessageListener<Long> {
-		private static long instanceCount = 0;
-		private final long instanceNo = ++instanceCount;
+	private static class MessageListenerTest2 implements MessageListener<Long> {
 		private long messageCount = 0;
 		public void onMessage(Long message) {
 			messageCount++;
@@ -23,14 +22,15 @@ public class LocalMessageChannelTest2 {
 		}
 		public void onMessages(List<Long> messages) {
 			messageCount += messages.size();
-			System.out.println("Received once " + messages.size() + " in MessageListener " + instanceNo);
 			checkFinished();
 		}
 		private void checkFinished() {
 			if (messageCount == MESSAGE_COUNT) {
-				System.out.println("Received " + messageCount + " in MessageListener " + instanceNo);
-				latch.countDown();
+				receivedLatch.countDown();
 			}
+		}
+		public String getName() {
+			return "MessageListenerTest2";
 		}
 	}
 	
@@ -51,16 +51,15 @@ public class LocalMessageChannelTest2 {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		LocalMessageChannel<Long> messageChannel = new LocalMessageChannel<Long>();
 		new MessageProducerTest(messageChannel);
 		long t0 = System.currentTimeMillis();
 		for (int i = 0; i < LISTENER_COUNT; i++) {
-			messageChannel.subscribe(new MessageListenerTest());
+			messageChannel.subscribe(new MessageListenerTest2());
 			Thread.sleep(200);
 		}
-		latch.await();
+		receivedLatch.await();
 		long t1 = System.currentTimeMillis();
-		System.out.println("Received " + MESSAGE_COUNT + " messages in " + (t1-t0) + "ms");
+		System.out.println("Received " + MESSAGE_COUNT + " messages in " + LISTENER_COUNT + " listeners in " + (t1-t0) + "ms");
 		System.exit(0);
 	}
 	
