@@ -6,6 +6,7 @@ import interfaces.MessageChannel;
 import interfaces.MessageListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -50,6 +51,15 @@ public class MessageChannelTest {
 		assert messageListener.recordedMessages.contains("Message two");
 		assert messageListener.recordedMessages.contains("Message three");
 		assert messageListener.recordedMessages.contains("Message four");
+		
+		messageListener.latch = new CountDownLatch(2);
+		List<Object> ids = Arrays.<Object>asList(6, 7);
+		List<String> messages = Arrays.asList("Message six", "Message seven");
+		messageChannel.publish(ids, messages);
+		messageListener.awaitLatch();
+		assert messageListener.recordedMessages.size() == 5;
+		assert messageListener.recordedMessages.get(3).equals("Message six");
+		assert messageListener.recordedMessages.get(4).equals("Message seven");
 		
 		System.out.println(messageChannel.getClass().getName() + " --> SUCCESS!");
 	}
