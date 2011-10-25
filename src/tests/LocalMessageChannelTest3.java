@@ -1,12 +1,13 @@
-package test;
+package tests;
+
+import implementations.AsynchronousMessageChannel;
+import interfaces.MessageChannel;
+import interfaces.MessageListener;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import local.AsynchronousMessageChannel;
-import local.MessageChannel;
-import local.MessageListener;
 
 public class LocalMessageChannelTest3 {
 

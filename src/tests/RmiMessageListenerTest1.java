@@ -1,4 +1,7 @@
-package test;
+package tests;
+
+import interfaces.RemoteMessageChannel;
+import interfaces.RemoteMessageListener;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -6,8 +9,6 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
-import remote.RemoteMessageChannel;
-import remote.RemoteMessageListener;
 
 public class RmiMessageListenerTest1 implements RemoteMessageListener<String> {
 

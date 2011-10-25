@@ -1,4 +1,6 @@
-package test;
+package tests;
+
+import interfaces.RemoteMessageChannel;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -6,9 +8,8 @@ import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.List;
 
-import remote.RemoteMessageChannel;
 
-public class RmiMessageSenderTest {
+public class RmiMessageSenderTest1 {
 
 	private static long MESSAGE_COUNT = 1000000;
 	
@@ -25,6 +26,7 @@ public class RmiMessageSenderTest {
 				try {
 					System.out.println("Published " + messages.get(messages.size()-1) + " from MessageProducerTest.");
 					messageChannel.publish(messages);
+					messageChannel.publish(i, messages.get(messages.size()-1));
 					messages.clear();
 				} catch (RemoteException e) {
 					System.out.println("Failed at " + i);

@@ -1,4 +1,7 @@
-package local;
+package implementations;
+
+import interfaces.MessageChannel;
+import interfaces.MessageListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;

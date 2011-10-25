@@ -1,4 +1,7 @@
-package remote;
+package implementations;
+
+import interfaces.RemoteMessageChannel;
+import interfaces.RemoteMessageListener;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;

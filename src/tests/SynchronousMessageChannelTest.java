@@ -1,10 +1,11 @@
-package test;
+package tests;
+
+import implementations.SynchronousMessageChannel;
+import interfaces.MessageListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import local.MessageListener;
-import local.SynchronousMessageChannel;
 
 public class SynchronousMessageChannelTest {
 

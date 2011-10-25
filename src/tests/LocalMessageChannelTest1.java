@@ -1,10 +1,11 @@
-package test;
+package tests;
+
+import implementations.AsynchronousMessageChannel;
+import interfaces.MessageListener;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import local.AsynchronousMessageChannel;
-import local.MessageListener;
 
 public class LocalMessageChannelTest1 {
 

@@ -1,4 +1,4 @@
-package local;
+package interfaces;
 
 import java.util.List;
 

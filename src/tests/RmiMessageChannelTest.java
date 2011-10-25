@@ -1,9 +1,10 @@
-package test;
+package tests;
+
+import implementations.RmiMessageChannel;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-import remote.RmiMessageChannel;
 
 public class RmiMessageChannelTest {
 	
