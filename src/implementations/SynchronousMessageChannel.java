@@ -58,4 +58,10 @@ public class SynchronousMessageChannel<T> implements MessageChannel<T> {
 		}
 	}
 
+	public void unsubscribe(MessageListener<T> listener) {
+		synchronized (mutex) {
+			listeners.remove(listener);
+		}
+	}
+
 }

@@ -7,4 +7,5 @@ public interface MessageChannel<T> {
 	public void publish(Object id, T message);
 	public void publish(List<Object> ids, List<T> messages);
 	public void subscribe(MessageListener<T> listener);
+	public void unsubscribe(MessageListener<T> listener);
 }
