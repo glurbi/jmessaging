@@ -10,7 +10,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
 
-public class RmiMessageListenerTest1 implements RemoteMessageListener<String> {
+public class RmiMessageListenerTest implements RemoteMessageListener<String> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -28,7 +28,7 @@ public class RmiMessageListenerTest1 implements RemoteMessageListener<String> {
 		System.out.println("RemoteMessageListenerTest");
         Registry registry = LocateRegistry.getRegistry(12345);
         RemoteMessageChannel<String> messageChannel = (RemoteMessageChannel<String>) registry.lookup("TestChannel");
-        RmiMessageListenerTest1 messageListener = new RmiMessageListenerTest1();
+        RmiMessageListenerTest messageListener = new RmiMessageListenerTest();
         UnicastRemoteObject.exportObject(messageListener, 0);
         messageChannel.subscribe(messageListener);
         System.in.read();

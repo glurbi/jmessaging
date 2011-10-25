@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class RmiMessageSenderTest1 {
+public class RmiMessageSenderTest {
 
 	private static long MESSAGE_COUNT = 1000000;
 	

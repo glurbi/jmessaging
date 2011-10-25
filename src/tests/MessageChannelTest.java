@@ -22,6 +22,8 @@ public class MessageChannelTest {
 	}
 	
 	private static void testMessageChannel(MessageChannel<String> messageChannel) throws Exception {
+		System.out.println("Testing " + messageChannel.getClass().getName());
+		
 		MessageListenerMock messageListener = new MessageListenerMock();
 		
 		messageListener.latch = new CountDownLatch(1);

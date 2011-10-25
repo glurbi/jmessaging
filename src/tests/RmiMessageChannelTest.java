@@ -6,7 +6,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 
-public class RmiMessageChannelTest1 {
+public class RmiMessageChannelTest {
 	
 	public static void main(String[] args) throws Exception {
 		System.out.println("RmiMessageChannelTest");
