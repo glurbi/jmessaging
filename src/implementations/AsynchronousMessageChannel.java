@@ -44,7 +44,6 @@ public class AsynchronousMessageChannel<T> implements MessageChannel<T> {
 	}
 
 	public void publish(final List<Object> ids, final List<T> messages) {
-		assert ids.size() == messages.size();
 		executor.submit(new Runnable() {
 			public void run() {
 				synchronized (mutex) {
@@ -67,8 +66,12 @@ public class AsynchronousMessageChannel<T> implements MessageChannel<T> {
 				throw new IllegalArgumentException("You cannot subscribe twice with the same listener.");
 			}
 			if (persistentMessages.size() > 0) {
-				List<T> previousMessages = new ArrayList<T>(persistentMessages.values());
-				listener.onMessages(previousMessages);
+				final List<T> previousMessages = new ArrayList<T>(persistentMessages.values());
+				executor.submit(new Runnable() {
+					public void run() {
+						listener.onMessages(previousMessages);
+					}
+				});
 			}
 			listeners.add(listener);
 		}

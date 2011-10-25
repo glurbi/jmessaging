@@ -2,6 +2,7 @@ package tests;
 
 import implementations.AsynchronousMessageChannel;
 import implementations.SynchronousMessageChannel;
+import implementations.ThreadPerClientMessageChannel;
 import interfaces.MessageChannel;
 import interfaces.MessageListener;
 
@@ -70,6 +71,7 @@ public class MessageChannelTest {
 		try {
 			testMessageChannel(new SynchronousMessageChannel<String>());
 			testMessageChannel(new AsynchronousMessageChannel<String>());
+			testMessageChannel(new ThreadPerClientMessageChannel<String>());
 		} catch (Throwable e) {
 			e.printStackTrace();
 		} finally {
