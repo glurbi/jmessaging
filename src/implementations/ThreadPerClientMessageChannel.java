@@ -46,6 +46,20 @@ public class ThreadPerClientMessageChannel<T> implements MessageChannel<T> {
 		}
 	}
 
+	public void publish(final List<T> messages) {
+		synchronized (mutex) {
+			for (Entry<MessageListener<T>, ExecutorService> entry : listeners.entrySet()) {
+				final MessageListener<T> listener = entry.getKey();
+				ExecutorService executor = entry.getValue();
+				executor.submit(new Runnable() {
+					public void run() {
+						listener.onMessages(messages);
+					}
+				});
+			}
+		}
+	}
+
 	public void publish(final List<Object> ids, final List<T> messages) {
 		synchronized (mutex) {
 			for (Entry<MessageListener<T>, ExecutorService> entry : listeners.entrySet()) {

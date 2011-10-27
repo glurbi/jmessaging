@@ -43,6 +43,18 @@ public class AsynchronousMessageChannel<T> implements MessageChannel<T> {
 		});
 	}
 
+	public void publish(final List<T> messages) {
+		executor.submit(new Runnable() {
+			public void run() {
+				synchronized (mutex) {
+					for (MessageListener<T> listener : listeners) {
+						listener.onMessages(messages);
+					}
+				}
+			}
+		});
+	}
+
 	public void publish(final List<Object> ids, final List<T> messages) {
 		executor.submit(new Runnable() {
 			public void run() {

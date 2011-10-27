@@ -32,6 +32,14 @@ public class SynchronousMessageChannel<T> implements MessageChannel<T> {
 		}
 	}
 
+	public void publish(List<T> messages) {
+		synchronized (mutex) {
+			for (MessageListener<T> listener : listeners) {
+				listener.onMessages(messages);
+			}
+		}
+	}
+
 	public void publish(final List<Object> ids, final List<T> messages) {
 		synchronized (mutex) {
 			for (int i = 0; i < ids.size(); i++) {

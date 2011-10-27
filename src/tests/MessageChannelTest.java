@@ -104,6 +104,19 @@ public class MessageChannelTest {
 		messageListener2.awaitLatch();
 		t1 = System.currentTimeMillis();
 		System.out.println("Sending " + max + " messages to 2 listener took " + (t1-t0) + "ms");
+
+		messageListener.reset(new CountDownLatch(1), max, new AtomicLong());
+		messageListener2.reset(new CountDownLatch(1), max, new AtomicLong());
+		t0 = System.currentTimeMillis();
+		for (long i = 0; i < 100; i++) {
+			List<String> batch = new ArrayList<String>((int) (max / 100));
+			for (long j = 0; j < max / 100; j++) { batch.add(""+i*j); }
+			messageChannel.publish(batch);
+		}
+		messageListener.awaitLatch();
+		messageListener2.awaitLatch();
+		t1 = System.currentTimeMillis();
+		System.out.println("Sending " + max + " messages in 100 batches to 2 listener took " + (t1-t0) + "ms");
 		
 		System.out.println("Performance testing " + messageChannel.getClass().getName() + " --> SUCCESS!");
 	}
