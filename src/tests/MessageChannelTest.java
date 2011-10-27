@@ -10,21 +10,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class MessageChannelTest {
 
-	private static class MessageListenerMock implements MessageListener<String> {
-		public CountDownLatch latch;
-		public List<String> recordedMessages = new ArrayList<String>();
-		public void onMessage(String message) { recordedMessages.add(message); latch.countDown();  }
-		public void onMessages(List<String> messages) { recordedMessages.addAll(messages); for (int i=0; i < recordedMessages.size(); i++) latch.countDown(); }
-		public java.lang.String getName() { throw new UnsupportedOperationException(); }
-		public void awaitLatch() throws Exception { latch.await(); }
-	}
-	
 	private static void testMessageChannel(MessageChannel<String> messageChannel) throws Exception {
 		System.out.println("Testing " + messageChannel.getClass().getName());
 		
+		class MessageListenerMock implements MessageListener<String> {
+			public CountDownLatch latch;
+			public List<String> recordedMessages = new ArrayList<String>();
+			public void onMessage(String message) { recordedMessages.add(message); latch.countDown();  }
+			public void onMessages(List<String> messages) { recordedMessages.addAll(messages); for (int i=0; i < recordedMessages.size(); i++) latch.countDown(); }
+			public java.lang.String getName() { throw new UnsupportedOperationException(); }
+			public void awaitLatch() throws Exception { latch.await(); }
+		}
 		MessageListenerMock messageListener = new MessageListenerMock();
 		
 		messageListener.latch = new CountDownLatch(1);
@@ -64,7 +64,48 @@ public class MessageChannelTest {
 		assert messageListener.recordedMessages.get(3).equals("Message six");
 		assert messageListener.recordedMessages.get(4).equals("Message seven");
 		
-		System.out.println(messageChannel.getClass().getName() + " --> SUCCESS!");
+		System.out.println("Testing " + messageChannel.getClass().getName() + " --> SUCCESS!");
+	}
+
+	private static void performanceTestMessageChannel(MessageChannel<String> messageChannel) throws Exception {
+		System.out.println("Performance testing " + messageChannel.getClass().getName());
+		
+		class MessageListenerPerformanceMock implements MessageListener<String> {
+			public CountDownLatch latch;
+			public long expectedMessageCount;
+			public AtomicLong messagesCount;
+			public void onMessage(String message) { messagesCount.incrementAndGet(); check(); }
+			public void onMessages(List<String> messages) { messagesCount.addAndGet(messages.size()); check(); }
+			public java.lang.String getName() { throw new UnsupportedOperationException(); }
+			private void check() { if (messagesCount.get() == expectedMessageCount) latch.countDown(); }
+			public void awaitLatch() throws Exception { latch.await(); }
+			private void reset(CountDownLatch latch, long expectedMessageCount, AtomicLong messagesCount) {
+				this.latch = latch; this.expectedMessageCount = expectedMessageCount; this.messagesCount = messagesCount;
+			}
+		}
+		
+		MessageListenerPerformanceMock messageListener = new MessageListenerPerformanceMock();
+		messageChannel.subscribe(messageListener);
+		long max = 1000000;
+		messageListener.reset(new CountDownLatch(1), max, new AtomicLong());
+		long t0 = System.currentTimeMillis();
+		for (long i = 0; i < max; i++) { messageChannel.publish(""+i); }
+		messageListener.awaitLatch();
+		long t1 = System.currentTimeMillis();
+		System.out.println("Sending " + max + " messages to 1 listener took " + (t1-t0) + "ms");
+
+		MessageListenerPerformanceMock messageListener2 = new MessageListenerPerformanceMock();
+		messageChannel.subscribe(messageListener2);
+		messageListener.reset(new CountDownLatch(1), max, new AtomicLong());
+		messageListener2.reset(new CountDownLatch(1), max, new AtomicLong());
+		t0 = System.currentTimeMillis();
+		for (long i = 0; i < max; i++) { messageChannel.publish(""+i); }
+		messageListener.awaitLatch();
+		messageListener2.awaitLatch();
+		t1 = System.currentTimeMillis();
+		System.out.println("Sending " + max + " messages to 2 listener took " + (t1-t0) + "ms");
+		
+		System.out.println("Performance testing " + messageChannel.getClass().getName() + " --> SUCCESS!");
 	}
 	
 	public static void main(String[] args) throws Exception {
@@ -72,6 +113,9 @@ public class MessageChannelTest {
 			testMessageChannel(new SynchronousMessageChannel<String>());
 			testMessageChannel(new AsynchronousMessageChannel<String>());
 			testMessageChannel(new ThreadPerClientMessageChannel<String>());
+			performanceTestMessageChannel(new SynchronousMessageChannel<String>());
+			performanceTestMessageChannel(new AsynchronousMessageChannel<String>());
+			performanceTestMessageChannel(new ThreadPerClientMessageChannel<String>());
 		} catch (Throwable e) {
 			e.printStackTrace();
 		} finally {
