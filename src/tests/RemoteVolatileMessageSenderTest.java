@@ -8,31 +8,32 @@ import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.List;
 
-
-public class RemoteMessageSenderTest {
+public class RemoteVolatileMessageSenderTest {
 
 	private static long MESSAGE_COUNT = 1000000;
 	
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception {
-		System.out.println("RmiMessageSenderTest");
-        Registry registry = LocateRegistry.getRegistry(12345);
+		System.out.println("RemoteVolatileMessageSenderTest");
+        Registry registry = LocateRegistry.getRegistry(RemoteMessageChannelTest.REGISTRY_PORT);
         RemoteMessageChannel<String> messageChannel = (RemoteMessageChannel<String>) registry.lookup("TestChannel");
 		long t0 = System.currentTimeMillis();
-		List<String> messages = new ArrayList<String>(100000);
-		for (long i = 1; i <= MESSAGE_COUNT; i++) {
-			messages.add("" + i);
-			if (i % 100000 == 0) {
-				try {
-					System.out.println("Published " + messages.get(messages.size()-1) + " from MessageProducerTest.");
+		List<String> messages = new ArrayList<String>();
+		int messageCount = 0;
+		messages.add(""+messageCount++);
+		messageChannel.publish(messages);
+		messages.clear();
+		while (messageCount < MESSAGE_COUNT) {
+			messages.add(""+messageCount++);
+			try {
+				if (messageCount % 100000 == 0) {
 					messageChannel.publish(messages);
-					messageChannel.publish(i, messages.get(messages.size()-1));
+					System.out.println("Published " + messageCount + " from RemoteVolatileMessageSenderTest.");
 					messages.clear();
-				} catch (RemoteException e) {
-					System.out.println("Failed at " + i);
-					e.printStackTrace();
-					System.exit(0);
 				}
+			} catch (RemoteException e) {
+				System.out.println("Failed at " + messageCount + ", reason: " + e.getMessage());
+				System.exit(0);
 			}
 		}
 		long t1 = System.currentTimeMillis();
