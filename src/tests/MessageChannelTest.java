@@ -1,7 +1,7 @@
 package tests;
 
-import implementations.AsynchronousMessageChannel;
-import implementations.SynchronousMessageChannel;
+import implementations.BackgroundThreadMessageChannel;
+import implementations.ForegroundThreadMessageChannel;
 import implementations.ThreadPerClientMessageChannel;
 import interfaces.MessageChannel;
 import interfaces.MessageListener;
@@ -164,11 +164,11 @@ public class MessageChannelTest {
 	
 	public static void main(String[] args) throws Exception {
 		try {
-			testMessageChannel(new SynchronousMessageChannel<String>());
-			testMessageChannel(new AsynchronousMessageChannel<String>());
+			testMessageChannel(new ForegroundThreadMessageChannel<String>());
+			testMessageChannel(new BackgroundThreadMessageChannel<String>());
 			testMessageChannel(new ThreadPerClientMessageChannel<String>());
-			performanceTestMessageChannel(new SynchronousMessageChannel<String>());
-			performanceTestMessageChannel(new AsynchronousMessageChannel<String>());
+			performanceTestMessageChannel(new ForegroundThreadMessageChannel<String>());
+			performanceTestMessageChannel(new BackgroundThreadMessageChannel<String>());
 			performanceTestMessageChannel(new ThreadPerClientMessageChannel<String>());
 		} catch (Throwable e) {
 			e.printStackTrace();
