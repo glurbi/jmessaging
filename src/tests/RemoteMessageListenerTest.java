@@ -28,6 +28,10 @@ public class RemoteMessageListenerTest implements RemoteMessageListener<String> 
 		System.out.println("Received " + totalReceived + " messages.");
 	}
 
+	public String getName() {
+		throw new UnsupportedOperationException();
+	}
+	
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception {
 		System.out.println("RemoteMessageListenerTest");
@@ -38,5 +42,5 @@ public class RemoteMessageListenerTest implements RemoteMessageListener<String> 
         messageChannel.subscribe(messageListener);
         System.in.read();
 	}
-	
+
 }

@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class ForegroundThreadMessageChannel<T> implements MessageChannel<T> {
+public class CurrentThreadMessageChannel<T> implements MessageChannel<T> {
 
 	private final Object mutex = new Object();
 	private final Set<MessageListener<T>> listeners = new HashSet<MessageListener<T>>();

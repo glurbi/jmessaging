@@ -1,7 +1,7 @@
 package tests;
 
 import implementations.BackgroundThreadMessageChannel;
-import implementations.ForegroundThreadMessageChannel;
+import implementations.CurrentThreadMessageChannel;
 import implementations.ThreadPerClientMessageChannel;
 import interfaces.MessageChannel;
 import interfaces.MessageListener;
@@ -164,10 +164,10 @@ public class MessageChannelTest {
 	
 	public static void main(String[] args) throws Exception {
 		try {
-			testMessageChannel(new ForegroundThreadMessageChannel<String>());
+			testMessageChannel(new CurrentThreadMessageChannel<String>());
 			testMessageChannel(new BackgroundThreadMessageChannel<String>());
 			testMessageChannel(new ThreadPerClientMessageChannel<String>());
-			performanceTestMessageChannel(new ForegroundThreadMessageChannel<String>());
+			performanceTestMessageChannel(new CurrentThreadMessageChannel<String>());
 			performanceTestMessageChannel(new BackgroundThreadMessageChannel<String>());
 			performanceTestMessageChannel(new ThreadPerClientMessageChannel<String>());
 		} catch (Throwable e) {
