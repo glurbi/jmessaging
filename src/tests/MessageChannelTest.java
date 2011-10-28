@@ -67,7 +67,7 @@ public class MessageChannelTest {
 		System.out.println("Testing " + messageChannel.getClass().getName() + " --> SUCCESS!");
 	}
 
-	private static void performanceTestMessageChannel(MessageChannel<String> messageChannel) throws Exception {
+	private static void performanceTestMessageChannel(final MessageChannel<String> messageChannel) throws Exception {
 		System.out.println("Performance testing " + messageChannel.getClass().getName());
 		
 		class MessageListenerPerformanceMock implements MessageListener<String> {
@@ -84,9 +84,12 @@ public class MessageChannelTest {
 			}
 		}
 		
+		//
+		// one producer, one consumer
+		//
 		MessageListenerPerformanceMock messageListener = new MessageListenerPerformanceMock();
 		messageChannel.subscribe(messageListener);
-		long max = 1000000;
+		final long max = 1000000;
 		messageListener.reset(new CountDownLatch(1), max, new AtomicLong());
 		long t0 = System.currentTimeMillis();
 		for (long i = 0; i < max; i++) { messageChannel.publish(""+i); }
@@ -94,6 +97,9 @@ public class MessageChannelTest {
 		long t1 = System.currentTimeMillis();
 		System.out.println("Sending " + max + " messages to 1 listener took " + (t1-t0) + "ms");
 
+		//
+		// one producer, two consumer
+		//
 		MessageListenerPerformanceMock messageListener2 = new MessageListenerPerformanceMock();
 		messageChannel.subscribe(messageListener2);
 		messageListener.reset(new CountDownLatch(1), max, new AtomicLong());
@@ -105,6 +111,9 @@ public class MessageChannelTest {
 		t1 = System.currentTimeMillis();
 		System.out.println("Sending " + max + " messages to 2 listener took " + (t1-t0) + "ms");
 
+		//
+		// one producer, two consumers, batched
+		//
 		messageListener.reset(new CountDownLatch(1), max, new AtomicLong());
 		messageListener2.reset(new CountDownLatch(1), max, new AtomicLong());
 		t0 = System.currentTimeMillis();
@@ -117,6 +126,38 @@ public class MessageChannelTest {
 		messageListener2.awaitLatch();
 		t1 = System.currentTimeMillis();
 		System.out.println("Sending " + max + " messages in 100 batches to 2 listener took " + (t1-t0) + "ms");
+	
+		//
+		// five producer, five consumers, persistent messages
+		//
+		messageChannel.unsubscribe(messageListener);
+		messageChannel.unsubscribe(messageListener2);		
+		List<MessageListenerPerformanceMock> listeners = new ArrayList<MessageListenerPerformanceMock>();
+		for (int i = 0; i < 10; i++) {
+			MessageListenerPerformanceMock mlpm = new MessageListenerPerformanceMock();
+			listeners.add(mlpm);
+			mlpm.reset(new CountDownLatch(1), 5 * max, new AtomicLong());
+		}
+		t0 = System.currentTimeMillis();
+		for (int i = 0; i < 5; i++) {
+			final int ii = i;
+			Runnable r = new Runnable() {
+				public void run() {
+					for (long j = 0; j < max; j++) {
+						int value = (int) (ii*max+j);
+						messageChannel.publish(value, ""+value);
+					}
+				}
+			};
+			new Thread(r).start();
+		}
+		for (int i = 0; i < 10; i++) {
+			messageChannel.subscribe(listeners.get(i));
+			Thread.sleep(200);
+		}
+		for (int i = 0; i < 10; i++) { listeners.get(i).awaitLatch(); }
+		t1 = System.currentTimeMillis();
+		System.out.println("Sending " + max*5 + " persistent messages from 5 producers to 10 listener took " + (t1-t0) + "ms");
 		
 		System.out.println("Performance testing " + messageChannel.getClass().getName() + " --> SUCCESS!");
 	}
